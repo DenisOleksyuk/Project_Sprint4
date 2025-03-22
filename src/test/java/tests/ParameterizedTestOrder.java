@@ -1,5 +1,6 @@
 package tests;
 
+import constants.Constants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,9 +17,8 @@ import java.util.Collection;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
-public class ParameterizedTest_order {
-    private WebDriver driver;
-    private MainPage mainPage;
+public class ParameterizedTestOrder extends BaseTest { // Наследование от BaseTest
+
     private OrderPage orderPage;
 
     // Параметры для теста
@@ -33,7 +33,7 @@ public class ParameterizedTest_order {
     private boolean useTopButton;
 
     // Конструктор для параметров
-    public ParameterizedTest_order(boolean useTopButton, String name, String surname, String address, String phoneNumber, String deliveryDay, String rentalPeriod, String color, String note) {
+    public ParameterizedTestOrder(boolean useTopButton, String name, String surname, String address, String phoneNumber, String deliveryDay, String rentalPeriod, String color, String note) {
         this.useTopButton = useTopButton;
         this.name = name;
         this.surname = surname;
@@ -76,11 +76,10 @@ public class ParameterizedTest_order {
         });
     }
 
+    @Override
     @Before
     public void setUp() {
-        driver = new ChromeDriver();
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        mainPage = new MainPage(driver);
+        super.setUp(); // Вызов метода setUp() из BaseTest
         mainPage.acceptCookies();
     }
 
@@ -138,10 +137,5 @@ public class ParameterizedTest_order {
 
         // Проверка, что появилось всплывающее окно с сообщением об успешном создании заказа
         assertTrue("Всплывающее окно с сообщением об успешном создании заказа не отображается", orderPage.isOrderConfirmationHeaderDisplayed());
-    }
-
-    @After
-    public void tearDown() {
-        driver.quit();
     }
 }

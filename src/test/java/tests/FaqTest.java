@@ -1,56 +1,52 @@
 package tests;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import pageobjects.MainPage;
 
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-public class FaqTest {
-    private WebDriver driver;
-    private MainPage mainPage;
+@RunWith(Parameterized.class)
+public class FaqTest extends BaseTest { // Наследование от BaseTest
 
-    @Before
-    public void setUp() {
-        driver = new ChromeDriver();
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        mainPage = new MainPage(driver);
-        mainPage.acceptCookies();
+    private int questionNumber;
+    private String expectedAnswer;
+
+    public FaqTest(int questionNumber, String expectedAnswer) {
+        this.questionNumber = questionNumber;
+        this.expectedAnswer = expectedAnswer;
+    }
+
+    @Parameterized.Parameters
+    public static Collection<Object[]> data() {
+        return Arrays.asList(new Object[][] {
+                {1, "Сутки — 400 рублей. Оплата курьеру — наличными или картой."},
+                {2, "Пока что у нас так: один заказ — один самокат. Если хотите покататься с друзьями, можете просто сделать несколько заказов — один за другим."},
+                {3, "Допустим, вы оформляете заказ на 8 мая. Мы привозим самокат 8 мая в течение дня. Отсчёт времени аренды начинается с момента, когда вы оплатите заказ курьеру. Если мы привезли самокат 8 мая в 20:30, суточная аренда закончится 9 мая в 20:30."},
+                {4, "Только начиная с завтрашнего дня. Но скоро станем расторопнее."},
+                {5, "Пока что нет! Но если что-то срочное — всегда можно позвонить в поддержку по красивому номеру 1010."},
+                {6, "Самокат приезжает к вам с полной зарядкой. Этого хватает на восемь суток — даже если будете кататься без передышек и во сне. Зарядка не понадобится."},
+                {7, "Да, пока самокат не привезли. Штрафа не будет, объяснительной записки тоже не попросим. Все же свои."},
+                {8, "Да, обязательно. Всем самокатов! И Москве, и Московской области."}
+        });
     }
 
     @Test
     public void testFaqSection() {
-        // Прокрутка страницы до раздела "Вопросы о важном"
-        WebElement faqSection = mainPage.getQuestionElement(0); // get первый вопрос
+        WebElement faqSection = mainPage.getQuestionElement(0);
         ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", faqSection);
 
-        // Ожидание, пока раздел станет видимым
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(ExpectedConditions.visibilityOf(faqSection));
 
-        // Проверка всех вопросов и ответов
-        checkQuestionAndAnswer(1, "Сутки — 400 рублей. Оплата курьеру — наличными или картой.");
-        checkQuestionAndAnswer(2, "Пока что у нас так: один заказ — один самокат. Если хотите покататься с друзьями, можете просто сделать несколько заказов — один за другим.");
-        checkQuestionAndAnswer(3, "Допустим, вы оформляете заказ на 8 мая. Мы привозим самокат 8 мая в течение дня. Отсчёт времени аренды начинается с момента, когда вы оплатите заказ курьеру. Если мы привезли самокат 8 мая в 20:30, суточная аренда закончится 9 мая в 20:30.");
-        checkQuestionAndAnswer(4, "Только начиная с завтрашнего дня. Но скоро станем расторопнее.");
-        checkQuestionAndAnswer(5, "Пока что нет! Но если что-то срочное — всегда можно позвонить в поддержку по красивому номеру 1010.");
-        checkQuestionAndAnswer(6, "Самокат приезжает к вам с полной зарядкой. Этого хватает на восемь суток — даже если будете кататься без передышек и во сне. Зарядка не понадобится.");
-        checkQuestionAndAnswer(7, "Да, пока самокат не привезли. Штрафа не будет, объяснительной записки тоже не попросим. Все же свои.");
-        checkQuestionAndAnswer(8, "Да, обязательно. Всем самокатов! И Москве, и Московской области.");
-    }
-
-    // Метод для проверки вопроса и ответа
-    private void checkQuestionAndAnswer(int questionNumber, String expectedAnswer) {
-        // Жмак на вопрос
         switch (questionNumber) {
             case 1:
                 mainPage.clickQuestion1();
@@ -80,7 +76,6 @@ public class FaqTest {
                 throw new IllegalArgumentException("Неверный номер вопроса: " + questionNumber);
         }
 
-        // Получение текста ответа
         String actualAnswer;
         switch (questionNumber) {
             case 1:
@@ -111,12 +106,6 @@ public class FaqTest {
                 throw new IllegalArgumentException("Неверный номер вопроса: " + questionNumber);
         }
 
-        // Проверка текста ответа
         assertEquals("Текст ответа на вопрос " + questionNumber + " не совпадает", expectedAnswer, actualAnswer);
-    }
-
-    @After
-    public void tearDown() {
-        driver.quit();
     }
 }
